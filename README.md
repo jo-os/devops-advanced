@@ -224,16 +224,84 @@ bind_addr = "192.168.0.1" # - интерфейс для общения конс�
 encrypt = "xxxxxxxxxxxx" # - ключ для создания шифрованного соединения - создается коммандой - consul keygen
 ```
 Полезные комманды
-- consul validate /etc/consul.d/consul.hcl
-- consul join <ip-address or node name>
-- consul leave
-- consule maint -enable/disable
-- consul members
-- cinsul info
-- consul reload
-- consul catalog services
-- consul register/deregister fe.json
+- consul validate /etc/consul.d/consul.hcl - проверка конфига
+- consul join <ip-address or node name> - присоединится к кластеру указав участника
+- consul leave - исключить ноду из кластера
+- consule maint -enable/disable - ключить режим обслуживания, вернутся в рабочий режим
+- consul members - показать участников кластера
+- cinsul info - общая информация о кластере
+- consul reload - перечитать конфигурацию агента
+- consul catalog services - показать список зарегестрированных сервисов
+- consul services register/deregister be.json - зарегистрировать/дерегистрировать сервис описанный в файле be.json
 
+Конфигурация клиента
+```
+data_dir = "/opt/consul"  # - каталог для хранения данных - /opt/consul по умолчанию
+client_addr = "192.168.0.1 127.0.0.1" # - интерфейс на который будут приходит запросы от клиентов, 127.0.0.1 для обращения к api из коммандной строки - иначе надо будет постоянно явно указывать адрес
+bind_addr = "192.168.0.1" # - интерфейс для общения консул серверов в кластере
+encrypt = "xxxxxxxxxxxx" # - ключ для создания шифрованного соединения - создается коммандой - consul keygen
+enable_local_script_checks = true
+```
+Регистрация сервиса
+```
+"service":
+{ "name": "be",
+  "tags": ["be"],
+  "check":
+  {
+    "id":"NGINX",
+    "name": "Check",
+    "http": "http://localhost",
+    "method": "GET",
+    "interval": "10s",
+    "timeout": "1s"
+  }
+}
+```
+Веб интерфейс
+```
+ui_config{
+enabled = true # - включаем в consul.hcl
+}
+consul reload
+ssh -L 8500:localhost:8500 ip-address - пробрасываем порт
+```
+**Ansible**
 
+https://github.com/ansible-collections/ansible-consul
 
+https://github.com/nginxinc/ansible-role-nginx
+
+**Consule-template**
+```
+sudo apt-install consul-template # - ставим на балансироващик нагрузки
+mkdir /etc/consul-template.d/ # - создадим каталог для конфига
+chown -R consul:consul /etc/consul-template.d
+```
+Работа с key-value-хранилищем
+```
+Побавить ключ mykey со значением 5
+curl -X PUT -d 5 http://127.0.0.1:8500/v1/kv/mykey
+consul kv put mykey 5
+Получить значение ключа mykey
+curl -X GET http://127.0.0.1:8500/v1/kv/mykey
+consul kv get mykey
+
+Consule-template написан на языке go для работы с шаблонами используется шаблоны go (go-templates)
+
+Запросы в каталог
+```
+{{ service "<TAG>.<NAME>@<DATACENTER>~<NEAR>|<FILTER>" }}
+{{ services "@<DATACENTER>" }}
+```
+```
+{{ range service "be" }}
+server {{ .Name }} {{ .Address }}:{{ .Port }}
+{{ end }}
+```
+```  
+{{ key "<PATH>@<DATACENTER>" }}
+{{ keyExists "<PATH>@<DATACENTER>" }}
+{{ keyOrDefault "<PATH>@<DATACENTER>" "<DEFAULT>"}}
+```
 
