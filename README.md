@@ -272,6 +272,8 @@ https://github.com/ansible-collections/ansible-consul
 
 https://github.com/nginxinc/ansible-role-nginx
 
+https://github.com/joos-net/consul-role - простая своя роль для тестов
+
 **Consule-template**
 ```
 sudo apt-install consul-template # - ставим на балансироващик нагрузки
@@ -286,7 +288,7 @@ consul kv put mykey 5
 Получить значение ключа mykey
 curl -X GET http://127.0.0.1:8500/v1/kv/mykey
 consul kv get mykey
-
+```
 Consule-template написан на языке go для работы с шаблонами используется шаблоны go (go-templates)
 
 Запросы в каталог
@@ -304,4 +306,83 @@ server {{ .Name }} {{ .Address }}:{{ .Port }}
 {{ keyExists "<PATH>@<DATACENTER>" }}
 {{ keyOrDefault "<PATH>@<DATACENTER>" "<DEFAULT>"}}
 ```
+## CMS (СУК)
+**Ansible**
+
+**Минусы**
+- хороший GUI с коммерческой лицензией
+- не отслеживает состояние машины, так как не агентов
+- yaml сложно дебажить
+
+**Плюсы**
+- написан на Python
+- работает по ssh
+- есть GUI AWX - хотя отстает от коммерческой версии
+- yaml - легко читать
+- для шаблонов есть jinja2
+- есть много готовых решений
+- можно создать свой модуль или дописать существующий
+
+**Общие минусы СУК**
+- сложно внедрить в существующиую инфраструктуру
+- требуется время на создание конфигураций
+- есть рись убить все разом
+
+**Общие плюсы СУК**
+- все сервера имеют стандарт настроек
+- можем управлять конфигурацией сотен серверов
+- больше не требуется ручных действий
+
+- **Task** - описание действий которые нужно выполнить
+- **Play** - набор ролей и тасков и список целевых хостов
+- **Role** - структурированный набор плей,таск и переменных (все разложено по каталогам)
+- **Playbook** - набор play - может быть один или много
+
+**Порядок запуска playbook**
+- pre_task
+- handlers for pre_task
+- roles/task (или по порядку или сначало зависимые)
+- handlers for roles/task
+- post_task
+- handlers for post_task
+
+Стратегии выполнения задачи или ролей
+- Linear
+- Free
+```
+[defaults]
+strategy=free
+----------------
+Playbook:
+  host: all
+  strategy: free
+```
+- fork=5 - параллельный запуск на многих хостах
+- serial: 5 - выполним на 5 хостах и после завершения перейдет к следующим 5 хостам
+- run_once: true - выполнится один раз на первой машине
+- dlegate_to: hostname - выполнится на указанном хосте - столько раз сколько хостов, c run_once - один раз
+
+https://dzen.ru/a/ZQCA9_MxXR4GAnVK
+
+- handlers - выполняются после play
+- meta: flush_handlers - если нужно выполнить handler в task
+
+- ansible-playbook site.yml --list-tasks - проверка какие таски будут выполняться
+- ansible-playbook site.yml --list-hosts - проверка на каких хостаз будет все выполняться
+
+Если есть роли то используем pre_task и post_task. 
+
+Tags - метки в playbook которые позволяют выборочно запускать tasks
+- always - всегда, если не пропускаем
+- never - никогда, если не указываем запуск
+--tags all - run all tasks, ignore tags (default behavior)
+--tags tag1,tag2 - run only tasks with either the tag tag1 or the tag tag2
+--skip-tags tag3,tag4 - run all tasks except those with either the tag tag3 or the tag tag4
+--tags tagged - run only tasks with at least one tag
+--tags untagged - run only tasks with no tags
+
+inventory-файл
+- описывает инфарстпуктуру, используется ansible для выполнения
+- может быть в формате ini, json, yaml
+- может быть статическим или динамическим
 
