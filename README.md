@@ -386,3 +386,69 @@ inventory-файл
 - может быть в формате ini, json, yaml
 - может быть статическим или динамическим
 
+Ускорить выполнение playbook
+- gather_facts: no
+```
+[defaults]
+gathering = smart
+fact_caching = redis
+fact_caching_timeout = 7200
+
+[defaults]
+gathering = smart
+fact_caching = jsonfile
+fact_caching_connection = /tmp/facts_cache
+fact_caching_timeout = 7200
+```
+Хранение чувствительных данных
+- хранить в KV-хранилище
+- внешний файл по отношению к ansible
+- переменные окружения
+- ansible-vault
+```
+ansible-vault create file
+ansible-vault view file
+ansible-vault edit file
+ansible-vault encript file
+ansible-vault decrypt file
+ansible-vault rekey file
+ansible-vault playbook.yml --ask-vault-pass
+ansible-vault encrypt_string
+```
+## Docker
+**Мультисборка**
+- создать контейнер для сборки
+- перенести собранное приложение в пустой контейнер
+- удалить контейнер для сборки
+```
+COPY --from=build /my-app /new-app
+```
+**Оптимизация образа**
+- использовать меньший базовый образ
+- мультисборка
+- отключить кеширование, если используем данные извне
+- минимизировать количество слоев
+- не ставить ненужное (например для дебага)
+- если возможно использовать образы distroless (java, python...)
+- данные храним на внешнем диске
+- вместо shared objects использовать статичные библиотеки
+
+**Docker Compose** - инструмент, позволяющий запускать приложения, требующие несколько контейнеров или имеющие зависимости
+```
+docker compose up
+docker compose down
+docker compose logs -f [service_name]
+```
+**Docker Swarm** - инструмент оркестрации, для создания на базе контейнеров Docker и для управления ими
+
+
+
+
+
+
+
+
+
+
+
+
