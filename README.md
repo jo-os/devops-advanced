@@ -783,7 +783,14 @@ sqlmap -u http://my-site/test.php?id=444
 ```
 **goreporter** - сканирование go
 ```
-./goreporter -p /path
+./goreporter -p /path/
 ```
-
-
+**semgrep** - проверка java
+```
+semgrep --config=auto /path/
+```
+**trivy** - сканер docker
+```
+trivy image [image-id]
+trivy repo [git url]
+```
