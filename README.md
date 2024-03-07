@@ -721,5 +721,69 @@ DAST - динамический анализ - анализ во время ра
 - отслеживает динамику разработки багов
 - поддерживает интеграцию с CI инструментами
 - есть много плагинов
+```
+sudo apt install postgresql postgresql-contrib
+sudo su postgres
+psql
+creste user sonar
+ALTER USER sonar WITH ENCRYPTED password 'sonar';
+CREATE DATABASE sonarqube OWNER sonar;
+exit
+exit
+
+на сайте качаем - sonarqube community edition
+распаковываем архив - в bin/linux/sonar.sh start
+127.0.0.1:9000 - по умолчанию
+
+качаем SonarScanner
+conf/sonner-scanner.properties
+-> sonar.host.url=http://localhost:9000
+
+далее создаем в папке проекта sonar-project.properties - пишем в нем что сканировать и мета информацию
+
+далее через 127.0.0.1:9000 создаем проект manually - name - locally - other - linux - копируем и запускаем сгенерированный код
+```
+**OWASP top 10** - список из топ 10 уязвимостей
+
+1. Brocken Access Control - злоумышленник получил доступ к докам или функционалу, ему не положенным
+2. Criptographic Failure - ошибка в модулях криптографии. В основном связано с багами в коде или использованием небезопасных методов и уязвимых библиотек/компонентов
+3. (SQL) Injection
+  - Классическая - вы сразу получаете данные из БД
+  - Error-based - данные получаем на основе ошибок, которые дает БД
+  - Boolean-based - перебор данных с реакцией на true/false
+  - Time-based - перебор с ориентиром на время отклика
+  - Out-of-Band - основана на индивидуальных особенностях БД
+4. Insecure Design - ошибки проектирования
+5. Security misconfiguration - ошибки при конфигурировании prod среды или инфраструктуры компании
+6. Vulnerable and Outdated Components - старый набор компонентов, отсутствие анализа компонентов на уязвимость
+7. Identification and Authentication Failures
+  - дефолтные логин/пароль
+  - отсутствие двухфакторной аутентификации
+  - отсутствие механизма защиты от брутфорса
+8. Software and Data Integrity Failures - использование недоверенных источников для получения обновлений/компонентов
+9. Security Logging and Monitoring Failures - отсутствие журналов логирования, нет системы уведомлений на подозрительные действия
+10. Server-Side Request Forgery - не ораничен доступ ко внутренней инфраструктуре для подтвержденных SSRF-серверов, отсутствие проверок на ридеректахх
+
+**bandit** - софт для сканирование на уязвимости python
+```
+клонируем репозитории и в нем
+bandit -r .
+```
+**cppcheck** - сканирование на качество кода и уязвимости с++
+```
+cppcheck dir/
+```
+**nmap** - скнирование на открытые порты
+```
+nmap -A localhost
+```
+**SQLmap** - сканирование на sql инъекции
+```
+sqlmap -u http://my-site/test.php?id=444
+```
+**goreporter** - сканирование go
+```
+./goreporter -p /path
+```
 
 
